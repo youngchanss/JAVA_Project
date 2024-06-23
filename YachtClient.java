@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.StringTokenizer;
+import java.util.concurrent.Flow.Subscription;
 
 public class YachtClient implements CommandConstants {
     String name = null;
@@ -14,6 +15,9 @@ public class YachtClient implements CommandConstants {
     private YachtGUI.LoginPanel loginPanel;
     private YachtGUI.LoadPanel loadPanel;
     private YachtGUI.GamePanel gamePanel;
+
+    String player1;
+    String player2;
 
     public void sendToServer(String command) {
         out.println(command);
@@ -68,8 +72,8 @@ public class YachtClient implements CommandConstants {
                             break;
                         case StoC_GAME:
                            // StoC_GAME Player1이름 Player2이름
-                            String player1 = st.nextToken();
-                            String player2 = st.nextToken();
+                            player1 = st.nextToken();
+                            player2 = st.nextToken();
 
                             // gamePanel 값 설정하는 과정
                             gamePanel.scoreBoard.setPlayersName(player1, player2);
@@ -80,7 +84,7 @@ public class YachtClient implements CommandConstants {
                         case StoC_TURN:
                            // StoC_TURN name1 -> name1의 턴.
                            // button on / off 하는 과정 필요
-                           String turnName = st.nextToken();    // turn 해야할 client 이름. 
+                            String turnName = st.nextToken();    // turn 해야할 client 이름. 
                             
                             if(name.equals(turnName)) {
                                 gamePanel.onButton();
@@ -97,7 +101,23 @@ public class YachtClient implements CommandConstants {
                             System.out.println(diceValues);
                             YachtGUI.DiceButton.setDicesValue(gamePanel.diceArray, diceValues);
                             break;
-                    }
+                        case StoC_SCORE:
+                            //서버에서 받은 점수값을 GUI에 나타내는 과정
+                            //StoC_SCORE name 3 12 -> name의 3번째 카테고리에 12를 더하는 명령
+                            System.out.println("7인식");
+                            String plusname = st.nextToken();
+                            int index = Integer.parseInt(st.nextToken());
+                            int score = Integer.parseInt(st.nextToken());
+                            if(player1.equals(plusname)){
+                                System.out.println("P1 응답.");
+                                gamePanel.scoreBoard.p1Score.SETSCORES(index, score);
+                            }
+                            else {
+                                System.out.println("P2 응답.");
+                                gamePanel.scoreBoard.p2Score.SETSCORES(index, score);
+                            }
+                            break;
+                    }   
                     /**
                      *  지금까지 login -> loading -> gamePanel까지 됐고, 초기 턴 지정까지 완료.
                      *    남은 할일
@@ -114,4 +134,3 @@ public class YachtClient implements CommandConstants {
         }
     }
 }
-

@@ -20,7 +20,7 @@ class YachtGUI extends JFrame implements CommandConstants {
     private YachtClient client;
 
     /* Player1 */
-    String playerName1 = "";
+    public String playerName1 = "";
     int[] playerScores1 = new int[Constant.CATENUMS];
     /* Player2 */
     String playerName2 = "";
@@ -201,8 +201,9 @@ class YachtGUI extends JFrame implements CommandConstants {
             scoreButton.setSize(135, 51);
             scoreButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e){
-                    rollcnt = Constant.ROLLCOUNT;
-                    //임시설정
+                    String command = CtoS_SCORE+" "+client.name+" ";
+                    
+                    //어떤 칸의 점수를 넣을지 확인.
                     int sel_index = -1;
                     for(int i=0;i<Constant.CATENUMS;i++){
                         if (scoreBoard.SELBUTTON[i].isSelected()) {
@@ -210,17 +211,9 @@ class YachtGUI extends JFrame implements CommandConstants {
                             break;
                         }
                     }
-
-                    System.out.println("you sel "+sel_index);
-
-                    int sums = 0;
-                    for(int i=0;i<5;i++){
-                        sums += diceArray[i].getdice();
-                    }
-                    scoreBoard.p1Score.SETSCORES(sel_index,sums);
-
-                    temp += 1;
-                    scoreBoard.setturns(temp);
+                    System.out.println("score 버튼 눌렀어요!!");
+                    command += sel_index;
+                    client.sendToServer(command);
                 }
             });
             add(scoreButton);
@@ -438,6 +431,9 @@ class YachtGUI extends JFrame implements CommandConstants {
             JPanel SCOREGRID[];
             JLabel SCORES[];
             
+            int[] INT_SCORES = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+            boolean[] SCORE_LOCK = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false};
+
             public void setPlayerName(String name) {
                 playerNameLabel.setText(name);
             }
@@ -479,7 +475,7 @@ class YachtGUI extends JFrame implements CommandConstants {
                     SCORES[i].setVisible(true);
                     SCORES[i].setHorizontalAlignment(JLabel.CENTER);
                     SCORES[i].setFont(new Font("BOLD", Font.BOLD, 14));
-                    SCORES[i].setText("0");
+                    SCORES[i].setText(INT_SCORES[i]+"");
                     SCOREGRID[i].add(SCORES[i]);
                     add(SCOREGRID[i]);
                 }
@@ -488,14 +484,18 @@ class YachtGUI extends JFrame implements CommandConstants {
                 setVisible(true);
             }
 
-            public void SETSCORES(int[] scores){
-                for (int i = 0; i < Constant.CATENUMS; i++) {
-                    SCORES[i].setText(scores[i]+"");
-                }
-            }
-
             public void SETSCORES(int index, int score){
-                SCORES[index].setText(score+"");
+                if(!SCORE_LOCK[index]){
+                        INT_SCORES[index] += score;
+                        SCORES[index].setText(INT_SCORES[index]+"");
+                        SCORE_LOCK[index] = true;
+                        if(index >= 0 && index < 6){
+                            INT_SCORES[Constant.SUBTOTAL] += score;
+                            SCORES[Constant.SUBTOTAL].setText(INT_SCORES[index]+"");
+                        }
+                        INT_SCORES[Constant.TOTAL] += score;
+                        SCORES[Constant.TOTAL].setText(INT_SCORES[index]+"");
+                }
             }
 
             public void SETNAMES(String name){

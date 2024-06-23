@@ -83,6 +83,22 @@ public class ServerHandler implements Runnable, CommandConstants {
                             command += " " + value;
                         yachtServer.broadCasting(command);
                         break;
+                    case CtoS_SCORE:
+                        //CtoS_SCORE : 클라이언트가 GET_SCORE버튼을 누른 경우
+                        name = st.nextToken();
+                        int category = Integer.parseInt(st.nextToken());
+                        
+                        //주사위 값 대신 점수로 변경할것.
+                        int[] diceValues3 = yachtServer.getDiceValues();
+                        int score_sum = 0;
+                        for(int value : diceValues3) score_sum+=value;
+
+                        command = "";
+                        command += StoC_SCORE+" "+name+" ";
+                        command += category +" "+score_sum;
+                        System.out.println(command + "보냄!!");
+                        yachtServer.broadCasting(command);
+                        break;
                     default:
                         System.out.println("Command Type Error!");
                 }
