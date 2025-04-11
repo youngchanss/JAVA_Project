@@ -1,3 +1,3 @@
-JAVA project
+* JAVA project
 
 Make Yacht Game
